@@ -79,10 +79,10 @@ Rails.application.routes.draw do
   end
 
   resources :paths, only: %i[index show] do
-    resources :courses, only: %i[index show] do
-      resources :lessons, only: %i[show]
-    end
+    resources :courses, only: %i[index show]
   end
+
+  resources :lessons, only: %i[show]
 
   resources :notifications, only: %i[index update]
   resource :themes, only: :update
