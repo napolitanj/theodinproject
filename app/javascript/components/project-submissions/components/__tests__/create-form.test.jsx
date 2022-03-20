@@ -8,7 +8,7 @@ import ProjectSubmissionContext from '../../ProjectSubmissionContext';
 const onSubmit = jest.fn();
 const onClose = jest.fn();
 const userId = 1;
-
+   
 describe('CreateForm', () => {
   describe('When submission is created successfully', () => {
     beforeEach(async () => {
@@ -50,6 +50,40 @@ describe('CreateForm', () => {
 
       expect(onClose).toHaveBeenCalledTimes(1);
     });
+
+  });
+
+  describe('When submissions have whitespace.', () => {
+    beforeEach(async() => {
+      render(
+        <ProjectSubmissionContext.Provider value={{ lesson: { has_live_preview: true } }}>
+          <CreateForm
+            onSubmit={onSubmit}
+            userId={userId}
+            onClose={onClose}
+          />
+          ,
+        </ProjectSubmissionContext.Provider>,
+      );
+        
+      await act(async () => {
+        const repoUrlInput = screen.getByTestId('repo-url-field');
+        const livePreviewUrlInput = screen.getByTestId('live-preview-url-field');
+        const isPublicToggle = screen.getByTestId('is-public-toggle-slider');
+
+        fireEvent.change(repoUrlInput, { target: { value: '    https://github.com/repo-url      ' } });
+        fireEvent.change(livePreviewUrlInput, { target: { value: '     https://live-preview.com     ' } });
+        fireEvent.change(isPublicToggle, { target: { checked: false } });
+        fireEvent.click(screen.getByTestId('submit-btn'));
+      });
+    });
+    test('calls onSubmit', () => {
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+    test('Displays the success screen.', () => {
+      expect(screen.getByTestId('success-message').textContent).toEqual('Thanks for Submitting Your Solution!');
+    });
+
   });
 
   describe('when url fields are not present', () => {
